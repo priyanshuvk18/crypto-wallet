@@ -1,22 +1,28 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Next-Gen Crypto Wallet API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: wallet
+    description: Wallet management
+  - name: transactions
+    description: Transaction operations
+  - name: tokens
+    description: Token management
+  - name: market
+    description: Market data
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +30,245 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /wallet/create:
+    post:
+      operationId: createWallet
+      tags: [wallet]
+      summary: Create a new HD wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWalletRequest"
+      responses:
+        "200":
+          description: Wallet created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletInfo"
+
+  /wallet/import:
+    post:
+      operationId: importWallet
+      tags: [wallet]
+      summary: Import wallet from mnemonic or private key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportWalletRequest"
+      responses:
+        "200":
+          description: Wallet imported
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletInfo"
+
+  /wallet/balance:
+    get:
+      operationId: getWalletBalance
+      tags: [wallet]
+      summary: Get wallet balances for all supported chains
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: network
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ethereum, bsc, polygon, bitcoin]
+      responses:
+        "200":
+          description: Wallet balances
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletBalances"
+
+  /wallet/transactions:
+    get:
+      operationId: getTransactionHistory
+      tags: [transactions]
+      summary: Get transaction history for a wallet address
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: network
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Transaction history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionHistory"
+
+  /wallet/send:
+    post:
+      operationId: sendTransaction
+      tags: [transactions]
+      summary: Broadcast a signed transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendTransactionRequest"
+      responses:
+        "200":
+          description: Transaction broadcast result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResult"
+
+  /wallet/estimate-gas:
+    post:
+      operationId: estimateGas
+      tags: [transactions]
+      summary: Estimate gas for a transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EstimateGasRequest"
+      responses:
+        "200":
+          description: Gas estimate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GasEstimate"
+
+  /tokens/list:
+    get:
+      operationId: getTokenList
+      tags: [tokens]
+      summary: Get list of supported tokens
+      parameters:
+        - name: network
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenList"
+
+  /tokens/balance:
+    get:
+      operationId: getTokenBalances
+      tags: [tokens]
+      summary: Get ERC-20 token balances for a wallet
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: network
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token balances
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenBalanceList"
+
+  /market/prices:
+    get:
+      operationId: getMarketPrices
+      tags: [market]
+      summary: Get current prices for cryptocurrencies
+      parameters:
+        - name: symbols
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Comma-separated list of symbols (e.g. ETH,BTC,BNB)
+      responses:
+        "200":
+          description: Market prices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketPrices"
+
+  /market/gas-tracker:
+    get:
+      operationId: getGasTracker
+      tags: [market]
+      summary: Get current gas prices for Ethereum
+      responses:
+        "200":
+          description: Gas tracker data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GasTracker"
+
+  /market/chart:
+    get:
+      operationId: getPriceChart
+      tags: [market]
+      summary: Get price chart data for a cryptocurrency
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 7
+      responses:
+        "200":
+          description: Price chart data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceChart"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +279,388 @@ components:
       required:
         - status
 
+    CreateWalletRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        network:
+          type: string
+          enum: [ethereum, bsc, polygon, bitcoin]
+          default: ethereum
+      required:
+        - name
+
+    ImportWalletRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        mnemonic:
+          type: string
+        privateKey:
+          type: string
+        network:
+          type: string
+          enum: [ethereum, bsc, polygon, bitcoin]
+      required:
+        - name
+
+    WalletInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        network:
+          type: string
+        mnemonic:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - address
+        - network
+        - createdAt
+
+    AssetBalance:
+      type: object
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        balance:
+          type: string
+        balanceUsd:
+          type: number
+        price:
+          type: number
+        change24h:
+          type: number
+        network:
+          type: string
+        icon:
+          type: string
+      required:
+        - symbol
+        - name
+        - balance
+        - balanceUsd
+        - price
+        - change24h
+        - network
+
+    WalletBalances:
+      type: object
+      properties:
+        address:
+          type: string
+        totalUsd:
+          type: number
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssetBalance"
+      required:
+        - address
+        - totalUsd
+        - assets
+
+    Transaction:
+      type: object
+      properties:
+        hash:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+        value:
+          type: string
+        valueUsd:
+          type: number
+        symbol:
+          type: string
+        type:
+          type: string
+          enum: [send, receive, swap, contract]
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+        timestamp:
+          type: string
+        blockNumber:
+          type: integer
+        gasUsed:
+          type: string
+        network:
+          type: string
+      required:
+        - hash
+        - from
+        - to
+        - value
+        - symbol
+        - type
+        - status
+        - timestamp
+        - network
+
+    TransactionHistory:
+      type: object
+      properties:
+        address:
+          type: string
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - address
+        - transactions
+        - total
+        - page
+        - totalPages
+
+    SendTransactionRequest:
+      type: object
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+        amount:
+          type: string
+        symbol:
+          type: string
+        network:
+          type: string
+        signedTx:
+          type: string
+      required:
+        - from
+        - to
+        - amount
+        - symbol
+        - network
+        - signedTx
+
+    TransactionResult:
+      type: object
+      properties:
+        hash:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+      required:
+        - hash
+        - status
+
+    EstimateGasRequest:
+      type: object
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+        value:
+          type: string
+        network:
+          type: string
+      required:
+        - from
+        - to
+        - value
+        - network
+
+    GasEstimate:
+      type: object
+      properties:
+        gasLimit:
+          type: string
+        gasPrice:
+          type: string
+        maxFeePerGas:
+          type: string
+        maxPriorityFeePerGas:
+          type: string
+        estimatedFee:
+          type: string
+        estimatedFeeUsd:
+          type: number
+      required:
+        - gasLimit
+        - gasPrice
+        - estimatedFee
+        - estimatedFeeUsd
+
+    Token:
+      type: object
+      properties:
+        address:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        decimals:
+          type: integer
+        logoURI:
+          type: string
+        network:
+          type: string
+      required:
+        - address
+        - symbol
+        - name
+        - decimals
+        - network
+
+    TokenList:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: "#/components/schemas/Token"
+        total:
+          type: integer
+      required:
+        - tokens
+        - total
+
+    TokenBalance:
+      type: object
+      properties:
+        token:
+          $ref: "#/components/schemas/Token"
+        balance:
+          type: string
+        balanceUsd:
+          type: number
+        price:
+          type: number
+      required:
+        - token
+        - balance
+        - balanceUsd
+        - price
+
+    TokenBalanceList:
+      type: object
+      properties:
+        address:
+          type: string
+        balances:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenBalance"
+      required:
+        - address
+        - balances
+
+    CryptoPrice:
+      type: object
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        change24h:
+          type: number
+        change7d:
+          type: number
+        marketCap:
+          type: number
+        volume24h:
+          type: number
+        icon:
+          type: string
+      required:
+        - symbol
+        - name
+        - price
+        - change24h
+        - change7d
+
+    MarketPrices:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/CryptoPrice"
+        updatedAt:
+          type: string
+      required:
+        - prices
+        - updatedAt
+
+    GasTracker:
+      type: object
+      properties:
+        slow:
+          type: number
+        standard:
+          type: number
+        fast:
+          type: number
+        instant:
+          type: number
+        baseFee:
+          type: number
+        network:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - slow
+        - standard
+        - fast
+        - instant
+        - baseFee
+        - network
+        - updatedAt
+
+    ChartDataPoint:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+        price:
+          type: number
+      required:
+        - timestamp
+        - price
+
+    PriceChart:
+      type: object
+      properties:
+        symbol:
+          type: string
+        days:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChartDataPoint"
+      required:
+        - symbol
+        - days
+        - data

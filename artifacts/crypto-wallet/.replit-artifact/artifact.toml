@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Next-Gen Crypto Wallet"
+version = "1.0.0"
+id = "artifacts/crypto-wallet"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 18624
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/crypto-wallet run dev"
+
+[services.env]
+PORT = "18624"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/crypto-wallet", "run", "build"]
+publicDir = "artifacts/crypto-wallet/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

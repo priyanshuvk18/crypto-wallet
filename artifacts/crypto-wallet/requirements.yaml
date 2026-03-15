@@ -1,0 +1,15 @@
+packages:
+  "@react-three/fiber": "React renderer for Three.js"
+  "@react-three/drei": "Useful helpers for React Three Fiber"
+  "three": "3D library required by fiber"
+  "@types/three": "TypeScript definitions for Three.js"
+  "framer-motion": "Animations and page transitions"
+  "recharts": "Data visualization for market charts"
+  "qrcode.react": "Generate QR codes for wallet addresses"
+  "ethers": "Client-side crypto wallet generation"
+  "zustand": "Lightweight global state management for wallet context"
+
+notes:
+  - Using zustand for simple client-side wallet state to persist address across routes.
+  - Relying on @workspace/api-client-react for all API interactions.
+  - 3D elements will be integrated carefully to maintain performance.
