@@ -1,0 +1,8 @@
+﻿
+> @workspace/crypto-wallet@0.0.0 typecheck C:\Users\ashis\Desktop\Crypto-Wallet-Dynamic\artifacts\crypto-wallet
+> tsc -p tsconfig.json --noEmit
+
+src/components/3d/ParticleField.tsx(28,10): error TS2741: Property 'args' is missing in type '{ attach: string; count: number; array: Float32Array<ArrayBuffer>; itemSize: number; }' but required in type 'Mutable<Overwrite<Partial<Overwrite<BufferAttribute, MathProps<BufferAttribute> & ReactProps<BufferAttribute>>>, Omit<...>>>'.
+src/pages/dashboard.tsx(20,7): error TS2741: Property 'queryKey' is missing in type '{ enabled: boolean; }' but required in type 'UseQueryOptions<WalletBalances, ErrorType<unknown>, WalletBalances, readonly unknown[]>'.
+src/pages/history.tsx(12,7): error TS2741: Property 'queryKey' is missing in type '{ enabled: boolean; }' but required in type 'UseQueryOptions<TransactionHistory, ErrorType<unknown>, TransactionHistory, readonly unknown[]>'.
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 2.

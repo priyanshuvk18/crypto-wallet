@@ -1,5 +1,5 @@
 import { useWalletStore } from '@/store/wallet-store';
-import { useGetTransactionHistory } from '@workspace/api-client-react';
+import { useGetTransactionHistory, getGetTransactionHistoryQueryKey } from '@workspace/api-client-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { History as HistoryIcon, ArrowUpRight, ArrowDownRight, RefreshCcw, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
@@ -9,7 +9,12 @@ export default function History() {
   
   const { data, isLoading } = useGetTransactionHistory(
     { address: activeWallet?.address || '0x0', page: 1, limit: 20 },
-    { query: { enabled: !!activeWallet } }
+    { 
+      query: { 
+        enabled: !!activeWallet,
+        queryKey: getGetTransactionHistoryQueryKey({ address: activeWallet?.address || '0x0', page: 1, limit: 20 })
+      } 
+    }
   );
 
   const getIcon = (type: string) => {

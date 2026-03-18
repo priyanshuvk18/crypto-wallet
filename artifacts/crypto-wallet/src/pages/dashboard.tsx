@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, ArrowDownRight, RefreshCcw, CreditCard, Activity } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { useWalletStore } from '@/store/wallet-store';
-import { useGetWalletBalance } from '@workspace/api-client-react';
+import { useGetWalletBalance, getGetWalletBalanceQueryKey } from '@workspace/api-client-react';
 
 export default function Dashboard() {
   const [location, setLocation] = useLocation();
@@ -17,7 +17,12 @@ export default function Dashboard() {
 
   const { data: balanceData, isLoading } = useGetWalletBalance(
     { address: activeWallet?.address || '0x0' },
-    { query: { enabled: !!activeWallet } }
+    { 
+      query: { 
+        enabled: !!activeWallet,
+        queryKey: getGetWalletBalanceQueryKey({ address: activeWallet?.address || '0x0' })
+      } 
+    }
   );
 
   return (

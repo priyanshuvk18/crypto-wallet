@@ -1,19 +1,22 @@
-import { pgTable, text, serial, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const walletsTable = pgTable("wallets", {
-  id: serial("id").primaryKey(),
+export const walletsTable = sqliteTable("wallets", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   sessionId: text("session_id").notNull(),
   name: text("name").notNull(),
   address: text("address").notNull(),
   network: text("network").notNull().default("ethereum"),
+  mnemonic: text("mnemonic"),
+  privateKey: text("private_key"),
   encryptedData: text("encrypted_data"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
 });
 
-export const transactionsTable = pgTable("transactions", {
-  id: serial("id").primaryKey(),
+export const transactionsTable = sqliteTable("transactions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   sessionId: text("session_id").notNull(),
   hash: text("hash").notNull().unique(),
   fromAddress: text("from_address").notNull(),
@@ -25,8 +28,8 @@ export const transactionsTable = pgTable("transactions", {
   network: text("network").notNull().default("ethereum"),
   gasUsed: text("gas_used"),
   blockNumber: text("block_number"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-  metadata: jsonb("metadata"),
+  timestamp: text("timestamp").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  metadata: text("metadata", { mode: "json" }),
 });
 
 export const insertWalletSchema = createInsertSchema(walletsTable).omit({ id: true, createdAt: true });
